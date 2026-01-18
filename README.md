@@ -1,5 +1,86 @@
 # NutsLib Reference Manual
 
+# 目录
+
+- [Chapter 1 概览](#chapter-1-概览)
+
+	- [介绍](#介绍)
+
+	- [特性](#特性)
+
+- [Chapter 2 功能描述](#chapter-2-功能描述)
+
+- [Chapter 3 使用方法](#chapter-3-使用方法)
+
+	- [项目导入过程](#项目导入过程)
+
+		- [克隆GitHub仓库](#克隆github仓库)
+
+		- [STM32CubeIDE导入工程](#stm32cubeide导入工程)
+
+		- [编译工程](#编译工程)
+
+		- [下载工程](#下载工程)
+
+	- [新建项目过程](#新建项目过程)
+
+		- [新建源文件夹(可选)](#新建源文件夹可选)
+
+		- [创建项目](#创建项目)
+
+		- [导入`NutsLib`文件夹(独立STM32工程)](#导入nutslib文件夹独立stm32工程)
+
+		- [导入`NutsLib`文件夹(同一源文件夹内存在多个STM32工程)](#导入nutslib文件夹同一源文件夹内存在多个stm32工程)
+
+		- [添加头文件包含路径](#添加头文件包含路径)
+
+		- [编辑`NutsLib`配置文件](#编辑nutslib配置文件)
+
+		- [编辑`main.c`](#编辑mainc)
+
+	- [项目结构](#项目结构)
+
+		- [文件结构](#文件结构)
+
+		- [代码结构](#代码结构)
+
+	- [通信协议](#通信协议)
+
+- [Chapter 4 设计流程](#chapter-4-设计流程)
+
+	- [](#)
+
+	- [](#)
+
+	- [](#)
+
+	- [](#)
+
+- [Chapter 5 示例](#chapter-5-示例)
+
+	- [](#)
+
+	- [](#)
+
+	- [](#)
+
+	- [](#)
+
+- [Chapter6 进阶功能](#chapter6-进阶功能)
+
+	- [](#)
+
+	- [](#)
+
+	- [](#)
+
+	- [](#)
+
+- [附录](#附录)
+
+	- [不同Nut的管脚配置](#不同nut的管脚配置)
+
+
 # Chapter 1 概览
 
 ## 介绍
@@ -80,7 +161,7 @@
 ![](.figure/opened-project.png)
 
 
-### 编译工程
+### 编译工程
 
 点击选中想要编译的项目后，点击编译按钮（锤子）：
 
@@ -100,7 +181,7 @@
 
 ## 新建项目过程
 
-### 新建源文件夹（可选）
+### 新建源文件夹(可选)
 
 `菜单栏`-`文件`-`新建`-`源文件夹`：
 
@@ -137,10 +218,10 @@
 还可以额外定义2个GPIO用作输出和1个GPIO用作输入，
 以及1个SPI从机、1个I2C从机（开发中）、一个CAN设备（开发中）。
 
-以上引脚与外设定义需要额外在[NutsLib_Config.h](#editconfig)中定义。
+以上引脚与外设定义需要额外在[NutsLib_Config.h](#编辑nutslib配置文件)中定义。
 
 
-### 导入`NutsLib`文件夹（独立STM32工程）
+### 导入`NutsLib`文件夹(独立STM32工程)
 
 从文件系统中直接将`NutsLib`文件夹拖到**STM32工程**的`Core`文件夹中：
 
@@ -151,7 +232,7 @@
 ![](.figure/ImportLibrary-CopyFolder-1.png)
 
 
-### 导入`NutsLib`文件夹（同一源文件夹内存在多个STM32工程）
+### 导入`NutsLib`文件夹(同一源文件夹内存在多个STM32工程)
 
 从文件系统中将`NutsLib`文件夹拖到**源文件夹**中：
 
@@ -195,7 +276,7 @@
 ![](.figure/AddIncludePath-5.png)
 
 
-### 编辑`NutsLib`配置文件 {#EditConfig}
+### 编辑`NutsLib`配置文件
 
 在每个STM32工程的`Inc`文件夹内新建头文件`NutsLib_Config.h`，
 或者将本仓库的`NutsLib_Config.h`复制到`Inc`中：
@@ -287,7 +368,7 @@ GP\_03输出引脚的定义。
 
 ```
 CrackNuts-Nuts-STM32
-├── NUT_F103C8TX
+├── NUT_F103C8TX
     ├── Core
         ├── Inc
         ├── NutsLib
@@ -295,7 +376,7 @@ CrackNuts-Nuts-STM32
         └── Startup
     ├── NUT_F103C8TX.ioc
     └── ...
-├── NUT_F407VGTX
+├── NUT_F407VGTX
     ├── Core
         ├── Inc
         ├── NutsLib
@@ -303,7 +384,7 @@ CrackNuts-Nuts-STM32
         └── Startup
     ├── NUT_F407VGTX.ioc
     └── ...
-├── NUT_F439VGTX
+├── NUT_F439VGTX
     ├── Core
         ├── Inc
         ├── NutsLib
@@ -332,7 +413,7 @@ CrackNuts-Nuts-STM32
     ├── NutsLib.h
     ├── user.c
     └── user.h
-└── README.md
+└── README.md
 ```
 
 
@@ -341,35 +422,35 @@ CrackNuts-Nuts-STM32
 ```
 CrackNuts-Nuts-STM32
 ├── .figure
-├── NUT_F103C8TX
+├── NUT_F103C8TX
     ├── Core
         ├── Inc
         ├── Src
         └── Startup
     ├── NUT_F103C8TX.ioc
     └── ...
-├── NUT_F407VGTX
+├── NUT_F407VGTX
     ├── Core
         ├── Inc
         ├── Src
         └── Startup
     ├── NUT_F407VGTX.ioc
     └── ...
-├── NUT_F439VGTX
+├── NUT_F439VGTX
     ├── Core
         ├── Inc
         ├── Src
         └── Startup
     ├── NUT_F439VGTX.ioc
     └── ...
-├── NUT_L476RGTX
+├── NUT_L476RGTX
     ├── Core
         ├── Inc
         ├── Src
         └── Startup
     ├── NUT_L476RGTX.ioc
     └── ...
-├── NUT_L486RGTX
+├── NUT_L486RGTX
     ├── Core
         ├── Inc
         ├── Src
@@ -382,7 +463,7 @@ CrackNuts-Nuts-STM32
     ├── user.c
     └── user.h
 ├── README.md
-└── ...
+└── ... 
 ```
 
 注意到所有的工程在文件系统中并没有`NutsLib`文件夹，
