@@ -72,7 +72,11 @@ NutStatus_e EnterStandby_NoWake(uint8_t *received_data_ptr, uint32_t received_da
 // @formatter:off
 NutAction_t command_list[] = {
 		{.command=0x0001, .function=Echo},
-		{.command=0x
+		{.command=0x0501, .function=EnterSleep_NoWake_MainReg},
+		{.command=0x0502, .function=EnterSleep_NoWake_LPReg},
+		{.command=0x0503, .function=EnterStop_NoWake_MainReg},
+		{.command=0x0504, .function=EnterStop_NoWake_LPReg},
+		{.command=0x0505, .function=EnterStandby_NoWake},
 };
 // @formatter:on
 uint16_t command_count = sizeof(command_list) / sizeof(command_list[0]);
