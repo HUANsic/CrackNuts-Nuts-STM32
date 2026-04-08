@@ -26,10 +26,53 @@ NutStatus_e Echo(uint8_t *received_data_ptr, uint32_t received_data_length, uint
 	return NUT_OK;
 }
 
+/* Enter sleep mode on demand */
+NutStatus_e EnterSleep_NoWake_MainReg(uint8_t *received_data_ptr, uint32_t received_data_length, uint8_t *result_buffer_ptr, uint32_t *result_length,
+		uint32_t result_buffer_MAX_size) {
+	*result_length = 0;
+	HAL_SuspendTick();	// disable SysTick
+	HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);	// enter sleep mode
+	return NUT_OK;
+}
+
+NutStatus_e EnterSleep_NoWake_LPReg(uint8_t *received_data_ptr, uint32_t received_data_length, uint8_t *result_buffer_ptr, uint32_t *result_length,
+		uint32_t result_buffer_MAX_size) {
+	*result_length = 0;
+	HAL_SuspendTick();	// disable SysTick
+	HAL_PWR_EnterSLEEPMode(PWR_LOWPOWERREGULATOR_ON, PWR_SLEEPENTRY_WFI);	// enter sleep mode
+	return NUT_OK;
+}
+
+NutStatus_e EnterStop_NoWake_MainReg(uint8_t *received_data_ptr, uint32_t received_data_length, uint8_t *result_buffer_ptr, uint32_t *result_length,
+		uint32_t result_buffer_MAX_size) {
+	*result_length = 0;
+	HAL_SuspendTick();	// disable SysTick
+	HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_STOPENTRY_WFI);	// enter stop mode
+	return NUT_OK;
+}
+
+NutStatus_e EnterStop_NoWake_LPReg(uint8_t *received_data_ptr, uint32_t received_data_length, uint8_t *result_buffer_ptr, uint32_t *result_length,
+		uint32_t result_buffer_MAX_size) {
+	*result_length = 0;
+	HAL_SuspendTick();	// disable SysTick
+	HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);	// enter stop mode
+	return NUT_OK;
+}
+
+NutStatus_e EnterStandby_NoWake(uint8_t *received_data_ptr, uint32_t received_data_length, uint8_t *result_buffer_ptr, uint32_t *result_length,
+		uint32_t result_buffer_MAX_size) {
+	*result_length = 0;
+	__HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);		// clear wake-up flag
+	HAL_SuspendTick();	// disable SysTick
+	HAL_PWR_EnterSTANDBYMode();	// enter standby mode
+	return NUT_OK;
+}
+
 /* User command */
 // @formatter:off
 NutAction_t command_list[] = {
 		{.command=0x0001, .function=Echo},
+		{.command=0x
 };
 // @formatter:on
 uint16_t command_count = sizeof(command_list) / sizeof(command_list[0]);
