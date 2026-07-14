@@ -30,6 +30,15 @@ NutError_e error;
 uint8_t tx_header[NUT_BUFFER_SIZE + 6], rx_header[NUT_BUFFER_SIZE + 8];
 uint8_t *tx_buffer = tx_header + 6;
 uint8_t *rx_buffer = rx_header + 8;
+CAN_TxHeaderTypeDef can_txheader = {0};
+CAN_RxHeaderTypeDef can_rxheader;
+uint32_t can_txmb;
+uint32_t can_rx_std_id = 0x601;
+uint32_t can_target_std_id = 0x001;
+uint8_t can_rx_msg_pending = 0;
+uint8_t can_txdata[8] = {0};
+uint8_t can_rxdata[8] = {0};
+uint8_t can_received_log_tag[] = "Rx: ";
 
 /*  CONSTANTS  */
 uint8_t error_header[] = { NUT_ERROR, NUT_ERROR_UNKNOWN, 0, 0, 0, 0 };	// payload size too large
@@ -156,7 +165,13 @@ void _NutComm_CAN_Error() {
 
 /* Initializes communication interfaces */
 void _NutComm_Init() {
-
+	HAL_CAN_Start(&NUT_CAN);
+	can_txheader.RTR = CAN_RTR_DATA;
+	can_txheader.IDE = CAN_ID_STD;
+	can_txheader.StdId = can_target_std_id;
+	can_txheader.TransmitGlobalTime = DISABLE;
+	// can_txheader.DLC = 8;
+	HAL_CAN_ActivateNotification(&NUT_CAN, CAN_IT_RX_FIFO0_MSG_PENDING);
 }
 
 /* Continuously check for signs of communication */
@@ -476,6 +491,47 @@ void Nut_Loop() {
 	else if (1) {
 		// TODO
 	}
+
+	/* Check CAN */
+	else if (can_rx_msg_pending) {
+		uint8_t i;
+		uint8_t msglen = can_rxheader.DLC;
+		if (msglen > 8) {
+			while(1);	// no support for CAN FD
+		}
+
+		// send data through UART for debug
+		HAL_UART_Transmit(&NUT_UART, can_received_log_tag, 4, 100);
+		HAL_UART_Transmit(&NUT_UART, can_rxdata, msglen, 100);
+
+		// now branch: if lowest byte is 0xFF, then the new ID is bytes[2:1] & 0x07FF
+		if (msglen > 0) {
+			if (can_rxdata[0] == 0xFF) {
+				uint16_t target_id = 0x00;
+				if (msglen > 1) {
+					target_id |= can_rxdata[1];
+					if (msglen > 2) {
+						target_id |= can_rxdata[2] << 8;
+					}
+				}
+				target_id &= 0x07FF;
+				can_txheader.StdId = target_id;
+				return;
+			}
+		}
+
+		// send same data back backwards
+		can_txheader.DLC = msglen;
+		for(i = 0; i < msglen; i++) {
+			can_txdata[i] = can_rxdata[msglen - i - 1];
+		}
+
+		// send to configured ID
+		if (HAL_CAN_AddTxMessage(&NUT_CAN, &can_txheader, can_txdata, &can_txmb) != HAL_OK) {
+			while(1);
+		}
+		can_rx_msg_pending = 0;		// clear
+	}
 }
 
 void Nut_Init() {
@@ -519,4 +575,13 @@ void Nut_Trigger_Clear(void) {
 
 uint8_t Nut_IO_USER() {
 	return HAL_GPIO_ReadPin(NUT_IO_USER_PORT, NUT_IO_USER_PIN);
+}
+
+/************************ ISR and Callbacks **********************/
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *canhandle) {
+	Nut_LED(1);
+	if (HAL_CAN_GetRxMessage(&NUT_CAN, CAN_RX_FIFO0, &can_rxheader, can_rxdata) != HAL_OK) {
+		while(1);
+	}
+	can_rx_msg_pending = 1;		// message pending!!
 }
