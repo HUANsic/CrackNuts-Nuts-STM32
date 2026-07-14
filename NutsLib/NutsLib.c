@@ -530,6 +530,7 @@ void Nut_Loop() {
 		if (HAL_CAN_AddTxMessage(&NUT_CAN, &can_txheader, can_txdata, &can_txmb) != HAL_OK) {
 			while(1);
 		}
+		Nut_LED(0);		// turn off LED
 		can_rx_msg_pending = 0;		// clear
 	}
 }
