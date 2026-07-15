@@ -165,6 +165,20 @@ void _NutComm_CAN_Error() {
 
 /* Initializes communication interfaces */
 void _NutComm_Init() {
+	// set up filter
+	CAN_FilterTypeDef filter;
+	filter.FilterBank = 2;	// random bank chosen
+	filter.FilterMode = CAN_FILTERMODE_IDMASK;
+	filter.FilterScale = CAN_FILTERSCALE_16BIT;
+	filter.FilterMaskIdHigh = 0;	// receive all std frames
+	filter.FilterMaskIdLow = 0;		// checked: it will NOT receive its own sent message
+	filter.FilterFIFOAssignment = CAN_RX_FIFO0;
+	filter.FilterActivation = ENABLE;
+	if (HAL_CAN_ConfigFilter(&NUT_CAN, &filter) != HAL_OK) {
+		while(1);
+	}
+
+	// start CAN
 	HAL_CAN_Start(&NUT_CAN);
 	can_txheader.RTR = CAN_RTR_DATA;
 	can_txheader.IDE = CAN_ID_STD;
@@ -516,6 +530,8 @@ void Nut_Loop() {
 				}
 				target_id &= 0x07FF;
 				can_txheader.StdId = target_id;
+				Nut_LED(0);		// turn off LED
+				can_rx_msg_pending = 0;		// clear
 				return;
 			}
 		}
